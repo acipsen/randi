@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Randi</title>
+  <style>
+    textarea {resize: none; white-space: pre}
+  </style>
+  <script>
+    function dbLoadListener(e)
+    {
+      document.getElementById("dbTextarea").value = e.target.result;
+    }
+
+    function loadDBFile()
+    {
+      var file = document.getElementById("fileInput").files[0];
+      console.log(file.name);
+      var fr = new FileReader();
+      fr.addEventListener("load",dbLoadListener);
+      fr.readAsText(file);
+    }
+  </script>
+</head>
+<body style="margin: 0px">
+
+
+<div style="display: grid; grid-template-columns: 50% 50%; grid-template-rows: 50px 1fr 1fr; height: 100vh">
+  <div style="grid-column: 1 / 3"> 
+    <input id="fileInput" type="file">
+    <button id="loadButton" onclick="loadDBFile()">Load</button>
+    <button id="loadButton" onclick="processDB()">Process</button>
+    <button id="testButton" onclick="test()">Test</button>
+  </div> 
+  <div style="float: left; height: 100%; width: 100%; position: relative">
+    <textarea id="proofTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">Proof script here</textarea>
+  </div>
+  <div style="float: left; height: 100%; width: 100%; position: relative">
+    <pre id="paStatePre">Proof state here</pre>
+  </div>
+  <div style="float: left; height: 100%; width: 100%; position: relative">
+    <textarea id="dbTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">DB here</textarea>
+  </div>
+  <div style="float: left; height: 100%; width: 100%; position: relative">
+    <pre id="paMessagesPre">PA messages here</pre>
+  </div>
+</div>
+
+
+</body>
+</html>
