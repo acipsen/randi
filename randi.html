@@ -5,6 +5,7 @@
   <title>Randi</title>
   <style>
     textarea {resize: none; white-space: pre}
+    pre {overflow: scroll}
   </style>
   <script src="MMDb.js"></script>
   <script>
@@ -13,20 +14,33 @@
       var file = document.getElementById("fileInput").files[0];
       console.log(file.name);
       var fr = new FileReader();
-      fr.addEventListener("load", e => document.getElementById("dbTextarea").value = e.target.result);
+      fr.addEventListener("load", e => document.getElementById("dbThmPre").innerHTML = e.target.result);
       fr.readAsText(file);
     }
     var db;
     function processDB()
     {
-      db = new MMDb(document.getElementById("dbTextarea").value);
+      db = new MMDb(document.getElementById("dbThmPre").innerHTML);
+    }
+    function thmSearchKeydown(e)
+    {
+      if(e.keyCode !== 13)
+        return;
+      if(!db)
+        return;
+      let thmPre = document.getElementById("dbThmPre");
+      let thm = db.thmMap.get(e.target.value);
+      if(thm)
+        thmPre.innerHTML = thm.toString(true);
+      else
+        thmPre.innerHTML = db.rawString;
     }
   </script>
 </head>
 <body style="margin: 0px">
 
 
-<div style="display: grid; grid-template-columns: 50% 50%; grid-template-rows: 50px 1fr 1fr; height: 100vh">
+<div style="display: grid; grid-template-columns: 50% 50%; grid-template-rows: 50px calc((100vh - 50px) / 2) calc((100vh - 50px) / 2); height: 100vh">
   <div style="grid-column: 1 / 3"> 
     <input id="fileInput" type="file">
     <button id="loadButton" onclick="loadDBFile()">Load</button>
@@ -40,7 +54,11 @@
     <pre id="paStatePre">Proof state here</pre>
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <textarea id="dbTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">DB here</textarea>
+    <!-- <textarea id="dbTextarea" style="display: none; height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">DB here</textarea>
+    <div style="height: 100%; width: 100%"> -->
+    <input type="text" id="thmSearchInput" onkeydown="thmSearchKeydown(event)">
+    <pre id="dbThmPre" style="height: calc(100% - 50px); width: 100%">Theorems from db here</pre>
+    <!-- </div> -->
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
     <pre id="paMessagesPre">PA messages here</pre>

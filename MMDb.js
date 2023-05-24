@@ -274,12 +274,14 @@ class MMDb
   static MSCATTYP = "$ct";
   
   constructor(s)
-  {
-    let t = new MMTokenizer(s);
-    
+  {       
+    this.rawString = s;   
     this.MSCategory = new Map();
+    this.thmMap = new Map; //Maps theorem name to instance of MMThm
     
     let scopes = [[]];
+
+    let t = new MMTokenizer(s);
     
     while(t.curTok !== MMTokenizer.EOF)
     {
@@ -308,6 +310,7 @@ class MMDb
       case "$p":
         var thm = new MMThm(stmt, scopes.at(-1), this.MSCategory);
         console.log(thm.toString(true));
+        this.thmMap.set(thm.stmt.label, thm);
         break;
       case "${":
         var nb = scopes.at(-1).slice();
