@@ -6,19 +6,20 @@
   <style>
     textarea {resize: none; white-space: pre}
   </style>
+  <script src="MMDb.js"></script>
   <script>
-    function dbLoadListener(e)
-    {
-      document.getElementById("dbTextarea").value = e.target.result;
-    }
-
     function loadDBFile()
     {
       var file = document.getElementById("fileInput").files[0];
       console.log(file.name);
       var fr = new FileReader();
-      fr.addEventListener("load",dbLoadListener);
+      fr.addEventListener("load", e => document.getElementById("dbTextarea").value = e.target.result);
       fr.readAsText(file);
+    }
+    var db;
+    function processDB()
+    {
+      db = new MMDb(document.getElementById("dbTextarea").value);
     }
   </script>
 </head>
