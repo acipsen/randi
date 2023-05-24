@@ -214,20 +214,10 @@ class MMThm
       }
     }
     
-    switch(stmt.keyword)
-    {
-    case "$a":
-    case "$p":
-      this.keyword = stmt.keyword;
-      break;
-    default:
+    if(!(stmt.keyword === "$a" || stmt.keyword === "$p"))
       throw "MMThm constructor: Statement with unexpected keyword: " + stmt.keyword;
-    }
-    
-    this.typecode = stmt.typecode
-    this.assertion = stmt.assertion;
-    this.label = stmt.label;
-    this.proof = stmt.proof;
+
+    this.stmt = stmt;
     
     addVars(stmt.assertion);
     for(let hyp of scope)
@@ -269,8 +259,7 @@ class MMThm
         s += "  " + hyp.toString() + "\n";
     }
     
-    s += "  " + this.label + " " + this.keyword + " " 
-         + this.typecode + " " + this.assertion.join(" ");
+    s += "  " + this.stmt.toString();
     s += "\n}";
     
     return s;
