@@ -8,19 +8,21 @@
     pre {overflow: scroll}
   </style>
   <script src="MMDb.js"></script>
+  <script src="MathParser.js"></script>
   <script>
     function loadDBFile()
     {
       var file = document.getElementById("fileInput").files[0];
       console.log(file.name);
       var fr = new FileReader();
-      fr.addEventListener("load", e => document.getElementById("dbThmPre").innerHTML = e.target.result);
+      fr.addEventListener("load", e => 
+        {document.getElementById("dbThmPre").innerHTML = e.target.result; processDB(e.target.result)});
       fr.readAsText(file);
     }
     var db;
-    function processDB()
+    function processDB(s)
     {
-      db = new MMDb(document.getElementById("dbThmPre").innerHTML);
+      db = new MMDb(s);
     }
     function thmSearchKeydown(e)
     {
@@ -44,7 +46,6 @@
   <div style="grid-column: 1 / 3"> 
     <input id="fileInput" type="file">
     <button id="loadButton" onclick="loadDBFile()">Load</button>
-    <button id="loadButton" onclick="processDB()">Process</button>
     <button id="testButton" onclick="test()">Test</button>
   </div> 
   <div style="float: left; height: 100%; width: 100%; position: relative">

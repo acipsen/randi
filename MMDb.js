@@ -269,15 +269,16 @@ class MMThm
 class MMDb
 {
   //this.MSCategory is a map from math symbols to one of these three values
-  static MSCATVAR = "$v";
-  static MSCATMATH = "$cm";
-  static MSCATTYP = "$ct";
+  static MSCATVAR = "$v";     //for variables
+  static MSCATMATH = "$cm";   //for constants such as '/\' 
+  static MSCATTYPE = "$ct";   //for typecodes such as 'wff'
   
   constructor(s)
   {       
     this.rawString = s;   
     this.MSCategory = new Map();
     this.thmMap = new Map; //Maps theorem name to instance of MMThm
+    this.mathParser = new MathParser(this.MSCategory);
     
     let scopes = [[]];
 
@@ -291,7 +292,7 @@ class MMDb
       {
       case "$c":
         for(let c of stmt.assertion)
-          this.MSCategory.set(c, MMDb.MSCATMATH); //This might change to MSCATTYP if c occurs as a typecode
+          this.MSCategory.set(c, MMDb.MSCATMATH); //This might change to MSCATTYPE if c occurs as a typecode
         break;
       case "$v":
         for(let v of stmt.assertion)
@@ -305,12 +306,23 @@ class MMDb
         scopes.at(-1).push(stmt);
         if(stmt.assertion.length !== 1)
           throw "MMDb constructor: Unexpected length of $f statement with label: " + stmt.label;
+        this.MSCategory.set(stmt.typecode, MMDb.MSCATTYPE);
         break;
       case "$a":
       case "$p":
         var thm = new MMThm(stmt, scopes.at(-1), this.MSCategory);
         console.log(thm.toString(true));
         this.thmMap.set(thm.stmt.label, thm);
+        if(thm.stmt.typecode !== "|-")
+        {
+          if(thm.stmt.keyword !== "$a")
+            throw "MMDb constructor: Grammar rule with proof?";
+          this.mathParser.addGrammarRule(thm);
+        }
+        else  //TODO: Test code, should be removed
+        {
+          let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+        }
         break;
       case "${":
         var nb = scopes.at(-1).slice();
@@ -325,5 +337,20 @@ class MMDb
         throw "MMDb constructor: Unexpected keyword: " + stmt.keyword;
       }
     } 
+  }
+  
+  //Utility function. Returns a map (var name => typecode) with
+  //an entry for each $f statement.
+  static varTypesOfHyps(hyps)
+  {
+    var varTypes = new Map()
+    
+    for(let hyp of hyps)
+    {
+      if(hyp.keyword === "$f")
+        varTypes.set(hyp.assertion[0], hyp.typecode);
+    }
+
+    return varTypes;
   }
 }
