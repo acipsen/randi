@@ -5,10 +5,11 @@
   <title>Randi</title>
   <style>
     textarea {resize: none; white-space: pre}
-    pre {overflow: scroll}
+    pre {overflow: scroll; margin: 0px}
   </style>
   <script src="MMDb.js"></script>
   <script src="MathParser.js"></script>
+  <script src="ProofAssistant.js"></script>
   <script>
     function loadDBFile()
     {
@@ -37,6 +38,43 @@
       else
         thmPre.innerHTML = db.rawString;
     }
+    function paUpdate()
+    {
+      console.log("paUpdate");
+      let pta = document.getElementById("proofTextarea");
+      let pmp = document.getElementById("paMessagesPre");
+      let cursorPos = pta.selectionStart;
+      let prfScriptString = pta.value.slice(0, cursorPos);
+      //console.log("prfScript: " + prfScript);
+      //From the comments to the answer https://stackoverflow.com/a/26425713
+      let prfScript = prfScriptString.split(/\s+/);
+      //Trailing white-space results in an empty string as the last element of the
+      //array. We thus remove this element.
+      if(prfScript.length > 0 && prfScript.at(-1) === "") 
+        prfScript.pop();
+      try
+      {
+        let cmds = ProofAssistant.parseProofScript(prfScript);
+        pmp.innerHTML = "";
+        for(let cmd of cmds)
+          pmp.innerHTML += cmd.toString() + "\n";
+      }
+      catch(e)
+      {
+        pmp.innerHTML = e.toString();
+        return;
+      }
+      
+    }
+
+    var paUpdateTimeout;
+    function proofKeyup(e)
+    {
+      console.log(e.code);
+      if(paUpdateTimeout !== undefined)
+        clearTimeout(paUpdateTimeout);
+      paUpdateTimeout = setTimeout(paUpdate, 500);
+    }
   </script>
 </head>
 <body style="margin: 0px">
@@ -52,7 +90,7 @@
     <textarea id="proofTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">Proof script here</textarea>
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="paStatePre">Proof state here</pre>
+    <pre id="goalStatePre" style="height: 100%; width: 100%">Proof state here</pre>
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
     <!-- <textarea id="dbTextarea" style="display: none; height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">DB here</textarea>
@@ -62,7 +100,7 @@
     <!-- </div> -->
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="paMessagesPre">PA messages here</pre>
+    <pre id="paMessagesPre" style="height: 100%; width: 100%">PA messages here</pre>
   </div>
 </div>
 
