@@ -99,12 +99,23 @@ class MMTokenizer
 
 class MMStatement
 {
-  //Given an MMTokenizer parses the next statement.
-  //Creates an empty statement if no argument is given.
-  constructor(t)
+  //new MMStatement(t), with t a tokenizer, parses the next statement.
+  //new MMStatement(idx, label, keyword, typecode, assertion, proof)
+  //just assigns the arguments to the corresponding fields. (TODO: Do we have any use of this case?)
+  constructor(toridx, label, keyword, typecode, assertion, proof)
   {
-    if(t === undefined)
+    if(arguments.length == 6)
+    {
+      this.idx = toridx;
+      this.label = label;
+      this.keyword = keyword;
+      this.typecode = typecode;
+      this.assertion = assertion;
+      this.proof = proof;
       return;
+    }
+    
+    let t = toridx;
     if(t.curTok === MMTokenizer.EOF)
       throw "MMStatement constructor: EOF!";
       
@@ -273,7 +284,7 @@ class MMDb
   static MSCATMATH = "$cm";   //for constants such as '/\' 
   static MSCATTYPE = "$ct";   //for typecodes such as 'wff'
   
-  constructor(s)
+  constructor(s, paThmLabel)
   {       
     this.rawString = s;   
     this.MSCategory = new Map();
@@ -284,7 +295,7 @@ class MMDb
 
     let t = new MMTokenizer(s);
     
-    while(t.curTok !== MMTokenizer.EOF)
+    while(t.curTok !== MMTokenizer.EOF && !this.paThm)
     {
       let stmt = new MMStatement(t);
       console.log(stmt.toString());
@@ -312,16 +323,23 @@ class MMDb
       case "$p":
         var thm = new MMThm(stmt, scopes.at(-1), this.MSCategory);
         console.log(thm.toString(true));
-        this.thmMap.set(thm.stmt.label, thm);
-        if(thm.stmt.typecode !== "|-")
+        if(thm.stmt.typecode === "|-")
+        {
+          //let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+          if(thm.stmt.label = paThmLabel)
+          {
+            this.paThm = thm;
+            this.paScope = scopes.at(-1);
+          }
+          else
+            this.thmMap.set(thm.stmt.label, thm);
+        }
+        else
         {
           if(thm.stmt.keyword !== "$a")
             throw "MMDb constructor: Grammar rule with proof?";
+          this.thmMap.set(thm.stmt.label, thm);
           this.mathParser.addGrammarRule(thm);
-        }
-        else  //TODO: Test code, should be removed
-        {
-          let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
         }
         break;
       case "${":

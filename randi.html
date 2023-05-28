@@ -21,9 +21,12 @@
       fr.readAsText(file);
     }
     var db;
+    var pa;
     function processDB(s)
     {
-      db = new MMDb(s);
+      db = new MMDb(s, document.getElementById("paThmLabelInput").value);
+      if(db.paThm)
+        pa = new ProofAssistant(db.paThm.stmt, db.paScope);
     }
     function thmSearchKeydown(e)
     {
@@ -41,23 +44,19 @@
     function paUpdate()
     {
       console.log("paUpdate");
+      if(!pa)
+        return;
       let pta = document.getElementById("proofTextarea");
       let pmp = document.getElementById("paMessagesPre");
       let cursorPos = pta.selectionStart;
-      let prfScriptString = pta.value.slice(0, cursorPos);
-      //console.log("prfScript: " + prfScript);
-      //From the comments to the answer https://stackoverflow.com/a/26425713
-      let prfScript = prfScriptString.split(/\s+/);
-      //Trailing white-space results in an empty string as the last element of the
-      //array. We thus remove this element.
-      if(prfScript.length > 0 && prfScript.at(-1) === "") 
-        prfScript.pop();
+      let proofScriptString = pta.value.slice(0, cursorPos);
+
       try
       {
-        let cmds = ProofAssistant.parseProofScript(prfScript);
         pmp.innerHTML = "";
-        for(let cmd of cmds)
-          pmp.innerHTML += cmd.toString() + "\n";
+        pa.runProofScript(proofScriptString)
+        //for(let cmd of pa.proofScript)
+        //  pmp.innerHTML += cmd.toString() + "\n";
       }
       catch(e)
       {
@@ -70,7 +69,7 @@
     var paUpdateTimeout;
     function proofKeyup(e)
     {
-      console.log(e.code);
+      //console.log(e.code);
       if(paUpdateTimeout !== undefined)
         clearTimeout(paUpdateTimeout);
       paUpdateTimeout = setTimeout(paUpdate, 500);
@@ -83,6 +82,7 @@
 <div style="display: grid; grid-template-columns: 50% 50%; grid-template-rows: 50px calc((100vh - 50px) / 2) calc((100vh - 50px) / 2); height: 100vh">
   <div style="grid-column: 1 / 3"> 
     <input id="fileInput" type="file">
+    <input id="paThmLabelInput" type="text">
     <button id="loadButton" onclick="loadDBFile()">Load</button>
     <button id="testButton" onclick="test()">Test</button>
   </div> 
