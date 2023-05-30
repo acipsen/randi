@@ -5,10 +5,11 @@
   <title>Randi</title>
   <style>
     textarea {resize: none; white-space: pre}
-    pre {overflow: scroll; margin: 0px}
+    pre {overflow: scroll; margin: 5px}
   </style>
   <script src="MMDb.js"></script>
   <script src="MathParser.js"></script>
+  <script src="ProofTree.js"></script>
   <script src="ProofAssistant.js"></script>
   <script>
     function loadDBFile()
@@ -48,20 +49,33 @@
         return;
       let pta = document.getElementById("proofTextarea");
       let pmp = document.getElementById("paMessagesPre");
+      let gsp = document.getElementById("goalStackPre");
       let cursorPos = pta.selectionStart;
       let proofScriptString = pta.value.slice(0, cursorPos);
 
-      try
-      {
+      //try
+      //{
         pmp.innerHTML = "";
         pa.runProofScript(proofScriptString)
         //for(let cmd of pa.proofScript)
         //  pmp.innerHTML += cmd.toString() + "\n";
-      }
+      /*}
       catch(e)
       {
         pmp.innerHTML = e.toString();
         return;
+      } */
+      
+      let goals = pa.goalStack.at(-1);
+      if(goals.length > 0)
+        gsp.innerHTML = "Main goal:\n" + goals.at(-1).toString(true) + "\n";
+      else
+        gsp.innerHTML = "No more goals!";
+      if(goals.length > 1)
+      {
+        gsp.innerHTML += "Other goals:\n";
+        for(let i = gsp.length - 2;i >= 0;i--)
+          gsp.innerHTML += goals[i].toString(false) + "\n";
       }
       
     }
@@ -90,17 +104,17 @@
     <textarea id="proofTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">Proof script here</textarea>
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="goalStatePre" style="height: 100%; width: 100%">Proof state here</pre>
+    <pre id="goalStackPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">Goal stack here</pre>
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
     <!-- <textarea id="dbTextarea" style="display: none; height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">DB here</textarea>
     <div style="height: 100%; width: 100%"> -->
-    <input type="text" id="thmSearchInput" onkeydown="thmSearchKeydown(event)">
-    <pre id="dbThmPre" style="height: calc(100% - 50px); width: 100%">Theorems from db here</pre>
+    <input type="text" id="thmSearchInput" onkeydown="thmSearchKeydown(event)" style="margin: 5px">
+    <pre id="dbThmPre" style="height: calc(100% - 50px); width: calc(100% - 10px)">Theorems from db here</pre>
     <!-- </div> -->
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="paMessagesPre" style="height: 100%; width: 100%">PA messages here</pre>
+    <pre id="paMessagesPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">PA messages here</pre>
   </div>
 </div>
 

@@ -13,22 +13,64 @@ class PSCmd
   }
 }
 
+class Goal
+{
+  constructor(pt, ghyps)
+  {
+    this.pt = pt;       //ProofTree
+    this.ghyps = ghyps; //List of ProofTrees
+  }
+  
+  toString(showGHyps)
+  {
+    let s = "";
+    if(showGHyps)
+    {
+      for(let h of this.ghyps)
+      {
+        s += h.stmt.assertion.join(" ") + "\n";
+      }
+    }
+    return s + "|- " + this.pt.stmt.assertion.join(" ");
+  }
+}
+
 class ProofAssistant
 {
   constructor(stmt, scope)
   {
-    this.goal = stmt;
+    this.stmt = stmt;
     this.scope = scope;
   }
   
-  runScript(scriptString)
+  runProofScript(proofScriptString)
   {
-    let toks = scriptString.split(/\s+/);
+    let toks = proofScriptString.split(/\s+/);
     //Trailing white-space results in an empty string as the last element of the
     //array. We thus remove this element.
     if(toks.length > 0 && toks.at(-1) === "") 
       toks.pop();
     this.proofScript = ProofAssistant.parseProofScript(toks);
+    
+    let pt = new ProofTree(this.stmt, null, null);
+    let ghyps = [];
+    for(let h of this.scope)
+    {
+      if(h.keyword === "$e")
+        ghyps.push(new ProofTree(h, null, null));
+    }
+    this.goalStack = [[new Goal(pt, ghyps)]];
+    
+    for(let cmd of this.proofScript)
+    {
+      switch(cmd.keyword)
+      {
+      case "$ap":
+        break;
+      default:
+        throw "runProofScript: Unexpected keyword: " + cmd.keyword;
+      }
+    }
   }
   
   static keywords = ["${", "$}", "$?}", "$ap"];

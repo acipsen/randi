@@ -101,7 +101,7 @@ class MMStatement
 {
   //new MMStatement(t), with t a tokenizer, parses the next statement.
   //new MMStatement(idx, label, keyword, typecode, assertion, proof)
-  //just assigns the arguments to the corresponding fields. (TODO: Do we have any use of this case?)
+  //just assigns the arguments to the corresponding fields.
   constructor(toridx, label, keyword, typecode, assertion, proof)
   {
     if(arguments.length == 6)
@@ -326,7 +326,7 @@ class MMDb
         if(thm.stmt.typecode === "|-")
         {
           //let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
-          if(thm.stmt.label = paThmLabel)
+          if(thm.stmt.label === paThmLabel)
           {
             this.paThm = thm;
             this.paScope = scopes.at(-1);
