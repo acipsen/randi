@@ -147,6 +147,7 @@ class MMStatement
       return;
     case "$c":
     case "$v":
+    case "$d":
       this.typecode = null;
       break;
     case "$f":
@@ -279,10 +280,9 @@ class MMThm
 
 class MMDb
 {
-  //this.MSCategory is a map from math symbols to one of these three values
+  //this.MSCategory is a map from math symbols to one of these two values
   static MSCATVAR = "$v";     //for variables
-  static MSCATMATH = "$cm";   //for constants such as '/\' 
-  static MSCATTYPE = "$ct";   //for typecodes such as 'wff'
+  static MSCATCONST = "$c";   //for constants 
   
   constructor(s, paThmLabel)
   {       
@@ -298,12 +298,14 @@ class MMDb
     while(t.curTok !== MMTokenizer.EOF && !this.paThm)
     {
       let stmt = new MMStatement(t);
-      console.log(stmt.toString());
+      //console.log(stmt.toString());
+      if(this.thmMap.size % 1000 === 0)
+        console.log("thmMap.size = " + this.thmMap.size);
       switch(stmt.keyword)
       {
       case "$c":
         for(let c of stmt.assertion)
-          this.MSCategory.set(c, MMDb.MSCATMATH); //This might change to MSCATTYPE if c occurs as a typecode
+          this.MSCategory.set(c, MMDb.MSCATCONST);
         break;
       case "$v":
         for(let v of stmt.assertion)
@@ -317,7 +319,6 @@ class MMDb
         scopes.at(-1).push(stmt);
         if(stmt.assertion.length !== 1)
           throw "MMDb constructor: Unexpected length of $f statement with label: " + stmt.label;
-        this.MSCategory.set(stmt.typecode, MMDb.MSCATTYPE);
         break;
       case "$a":
       case "$p":
@@ -325,7 +326,8 @@ class MMDb
         console.log(thm.toString(true));
         if(thm.stmt.typecode === "|-")
         {
-          //let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+          let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+          console.log("From parse tree: " + parseTree.toTokenList().join(" "));
           if(thm.stmt.label === paThmLabel)
           {
             this.paThm = thm;
@@ -336,8 +338,6 @@ class MMDb
         }
         else
         {
-          if(thm.stmt.keyword !== "$a")
-            throw "MMDb constructor: Grammar rule with proof?";
           this.thmMap.set(thm.stmt.label, thm);
           this.mathParser.addGrammarRule(thm);
         }

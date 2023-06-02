@@ -9,7 +9,7 @@ class GrammarRule
   
   toString()
   {
-    return this.lhs + " -> " + this.rhs.join(" ");
+    return "$" + this.lhs + " -> " + this.rhs.join(" ");
   }
 }
 
@@ -19,6 +19,11 @@ class VarNode
   {
     this.typecode = typecode;
     this.varName = varName;
+  }
+  
+  toTokenList()
+  {
+    return [this.varName];
   }
 }
 
@@ -30,6 +35,25 @@ class RuleNode
     this.rule = rule;
     this.childNodes = childNodes;
   }
+  
+  toTokenList()
+  {
+    let childIdx = 0;
+    let toks = [];
+    for(let t of this.rule.rhs)
+    {
+      if(t.indexOf("$") === -1)
+      {
+        toks.push(t);
+      }
+      else
+      {
+       toks.push(...this.childNodes[childIdx].toTokenList());
+       childIdx++;
+      }
+    }
+    return toks;
+  }
 }
 
 class MathParser
@@ -40,6 +64,11 @@ class MathParser
   //rules with the same key. 
   //Collect rules with less than n elements in separate
   //maps/lists.
+  
+  //Another idea: Construct a map from tokens (we should probably exclude
+  //very common tokens such as brackets) to all grammar rules with this 
+  //token on the rhs. Then the parser should only need to look through
+  //a small number of relevant rules at each step.
   
   constructor(MSCategory)
   {
@@ -57,7 +86,7 @@ class MathParser
     {
       let t = thm.stmt.assertion[i];
       let ty = varTypes.get(t);
-      rhs.push(ty ? ty : t);
+      rhs.push(ty ? "$" + ty : t);
     }
     
     this.grammarTable.push(new GrammarRule(thm.stmt.label, thm.stmt.typecode, rhs));
@@ -107,21 +136,18 @@ class MathParser
     {
       let se = stack.at(i);
       let re = rhs.at(i);
-      switch(this.MSCategory.get(re))
+      if(re.indexOf("$") === -1)
       {
-      case MMDb.MSCATMATH:
         if(se !== re)
           return false;
-        break;
-      case MMDb.MSCATTYPE:
+      }
+      else
+      {
         if(typeof se === "string")
           return false;
-        if(se.typecode !== re)
+        if("$" + se.typecode !== re)
           return false;
         childNodes.push(se);
-        break;
-      default:
-        throw "matchStackTop: Unexpected token in rule: " + re;
       }
     }
     return new RuleNode(rule.lhs, rule, childNodes);
@@ -193,5 +219,10 @@ class MathParser
       console.log("parseMathExpr: Success.");
       return retVal;
     }
+  }
+  
+  parseThm(thm)
+  {
+    return this.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
   }
 }
