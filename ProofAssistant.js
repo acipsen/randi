@@ -26,21 +26,27 @@ class Goal
     let s = "";
     if(showGHyps)
     {
+      if(this.ghyps.length > 0)
+        s = "Hypotheses:\n";
       for(let h of this.ghyps)
       {
-        s += h.stmt.assertion.join(" ") + "\n";
+        s += DeductionForm.proofTreeToStringSequentStyle(h.stmt.parseTree) + "\n"; //h.stmt.assertion.join(" ") + "\n";
       }
+      s += "Goal:\n";
     }
-    return s + "|- " + this.pt.stmt.assertion.join(" ");
+    return s + DeductionForm.proofTreeToStringSequentStyle(this.pt.stmt.parseTree);
   }
 }
 
 class ProofAssistant
 {
-  constructor(stmt, scope)
+  constructor(db)
   {
-    this.stmt = stmt;
-    this.scope = scope;
+    this.stmt = db.paThm.stmt;
+    this.scope = db.paScope;
+    this.db = db;
+    this.mathParser = db.mathParser;
+    this.varTypes = MMDb.varTypesOfHyps(this.scope);
   }
   
   runProofScript(proofScriptString)
@@ -52,12 +58,20 @@ class ProofAssistant
       toks.pop();
     this.proofScript = ProofAssistant.parseProofScript(toks);
     
+    if(this.stmt.typecode !== "|-")
+        throw "runProofScript: Goal statement has unexpected typecode: " + this.stmt.typecode;
+    this.stmt.parseTree = this.mathParser.parseMathExpr(this.stmt.assertion, "wff", this.varTypes);
     let pt = new ProofTree(this.stmt, null, null);
+    
     let ghyps = [];
     for(let h of this.scope)
     {
-      if(h.keyword === "$e")
-        ghyps.push(new ProofTree(h, null, null));
+      if(h.keyword !== "$e")
+        continue;
+      if(h.typecode !== "|-")
+        throw "runProofScript: $e hypothesis has unexpected typecode: " + h.typecode;
+      h.parseTree = this.mathParser.parseMathExpr(h.assertion, "wff", this.varTypes);
+      ghyps.push(new ProofTree(h, null, null));
     }
     this.goalStack = [[new Goal(pt, ghyps)]];
     

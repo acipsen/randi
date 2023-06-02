@@ -14,6 +14,7 @@
   <script src="MathParser.js"></script>
   <script src="ProofTree.js"></script>
   <script src="ProofAssistant.js"></script>
+  <script src="DeductionForm.js"></script>
   <script>
     function loadDBFile()
     {
@@ -30,7 +31,10 @@
     {
       db = new MMDb(s, document.getElementById("paThmLabelInput").value);
       if(db.paThm)
-        pa = new ProofAssistant(db.paThm.stmt, db.paScope);
+      {
+        pa = new ProofAssistant(db);
+        paUpdate();
+      }
     }
     function thmSearchKeydown(e)
     {
@@ -71,7 +75,7 @@
       
       let goals = pa.goalStack.at(-1);
       if(goals.length > 0)
-        gsp.innerHTML = "Main goal:\n" + goals.at(-1).toString(true) + "\n";
+        gsp.innerHTML = goals.at(-1).toString(true) + "\n";
       else
         gsp.innerHTML = "No more goals!";
       if(goals.length > 1)

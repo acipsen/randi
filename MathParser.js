@@ -13,10 +13,25 @@ class GrammarRule
   }
 }
 
-class VarNode
+class ParseTree
+{
+  constructor()
+  {
+    if(this.constructor == ParseTree)
+      throw "The abstract ParseTree class should not be instantiated!";
+  }
+  
+  toString()
+  {
+    return this.toTokenList().join(" ");
+  }
+}
+
+class VarNode extends ParseTree
 {
   constructor(typecode, varName)
   {
+    super();
     this.typecode = typecode;
     this.varName = varName;
   }
@@ -27,10 +42,11 @@ class VarNode
   }
 }
 
-class RuleNode
+class RuleNode extends ParseTree
 {
   constructor(typecode, rule, childNodes)
   {
+    super();
     this.typecode = typecode;
     this.rule = rule;
     this.childNodes = childNodes;

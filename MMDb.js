@@ -323,11 +323,11 @@ class MMDb
       case "$a":
       case "$p":
         var thm = new MMThm(stmt, scopes.at(-1), this.MSCategory);
-        console.log(thm.toString(true));
+        //console.log(thm.toString(true));
         if(thm.stmt.typecode === "|-")
         {
-          let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
-          console.log("From parse tree: " + parseTree.toTokenList().join(" "));
+          //let parseTree = this.mathParser.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+          //console.log("From parse tree: " + parseTree.toString());
           if(thm.stmt.label === paThmLabel)
           {
             this.paThm = thm;
