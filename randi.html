@@ -15,6 +15,7 @@
   <script src="ProofTree.js"></script>
   <script src="ProofAssistant.js"></script>
   <script src="DeductionForm.js"></script>
+  <script src="ApplyTac.js"></script>
   <script>
     function loadDBFile()
     {
@@ -73,15 +74,15 @@
         return;
       } */
       
-      let goals = pa.goalStack.at(-1);
+      let goals = pa.goalStackStack.at(-1);
       if(goals.length > 0)
         gsp.innerHTML = goals.at(-1).toString(true) + "\n";
       else
         gsp.innerHTML = "No more goals!";
       if(goals.length > 1)
       {
-        gsp.innerHTML += "Other goals:\n";
-        for(let i = gsp.length - 2;i >= 0;i--)
+        gsp.innerHTML += "\nOther goals:\n";
+        for(let i = goals.length - 2;i >= 0;i--)
           gsp.innerHTML += goals[i].toString(false) + "\n";
       }
       

@@ -371,4 +371,18 @@ class MMDb
 
     return varTypes;
   }
+  
+  static substTokList(ts, substMap)
+  {
+    let a = [];
+    for(let t of ts)
+    {
+      let tp = substMap.get(t);
+      if(tp !== undefined)
+        a.push(...tp);
+      else
+        a.push(t);
+    }
+    return a;
+  }
 }

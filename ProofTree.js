@@ -4,6 +4,7 @@ class ProofTree
   //ordinary proof step: new ProofTree({keyword: "$p", ...}, thm, subTrees)
   //missing proof step:  new ProofTree({keyword: "$p", ...}, null, null)
   //hypothesis:          new ProofTree({keyword: "$e", ...}, null, null)
+  //The subTrees, if present, correspond to the $e hypotheses.
   constructor(stmt, thm, subTrees)
   {
     this.stmt = stmt; 

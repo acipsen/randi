@@ -15,10 +15,10 @@ class PSCmd
 
 class Goal
 {
-  constructor(pt, ghyps)
+  constructor(pt, gHyps)
   {
     this.pt = pt;       //ProofTree
-    this.ghyps = ghyps; //List of ProofTrees
+    this.gHyps = gHyps; //List of ProofTrees
   }
   
   toString(showGHyps)
@@ -26,9 +26,9 @@ class Goal
     let s = "";
     if(showGHyps)
     {
-      if(this.ghyps.length > 0)
+      if(this.gHyps.length > 0)
         s = "Hypotheses:\n";
-      for(let h of this.ghyps)
+      for(let h of this.gHyps)
       {
         s += DeductionForm.proofTreeToStringSequentStyle(h.stmt.parseTree) + "\n"; //h.stmt.assertion.join(" ") + "\n";
       }
@@ -47,6 +47,8 @@ class ProofAssistant
     this.db = db;
     this.mathParser = db.mathParser;
     this.varTypes = MMDb.varTypesOfHyps(this.scope);
+    
+    this.applyTac = new ApplyTac(this);
   }
   
   runProofScript(proofScriptString)
@@ -61,9 +63,9 @@ class ProofAssistant
     if(this.stmt.typecode !== "|-")
         throw "runProofScript: Goal statement has unexpected typecode: " + this.stmt.typecode;
     this.stmt.parseTree = this.mathParser.parseMathExpr(this.stmt.assertion, "wff", this.varTypes);
-    let pt = new ProofTree(this.stmt, null, null);
+    this.proofTree = new ProofTree(this.stmt, null, null);
     
-    let ghyps = [];
+    let gHyps = [];
     for(let h of this.scope)
     {
       if(h.keyword !== "$e")
@@ -71,15 +73,21 @@ class ProofAssistant
       if(h.typecode !== "|-")
         throw "runProofScript: $e hypothesis has unexpected typecode: " + h.typecode;
       h.parseTree = this.mathParser.parseMathExpr(h.assertion, "wff", this.varTypes);
-      ghyps.push(new ProofTree(h, null, null));
+      gHyps.push(new ProofTree(h, null, null));
     }
-    this.goalStack = [[new Goal(pt, ghyps)]];
+    this.goalStackStack = [[new Goal(this.proofTree, gHyps)]];
     
     for(let cmd of this.proofScript)
     {
       switch(cmd.keyword)
       {
       case "$ap":
+        let goalStack = this.goalStackStack.at(-1);
+        if(goalStack.length == 0)
+          throw "runProofScript: No goal to apply tactic to!";
+        let mainGoal = goalStack.pop();
+        let newGoals = this.applyTac.apply(mainGoal, cmd.args);
+        goalStack.push(...newGoals);
         break;
       default:
         throw "runProofScript: Unexpected keyword: " + cmd.keyword;
@@ -138,5 +146,49 @@ class ProofAssistant
     }
     
     return cmds;
+  }
+  
+  static unifyParseTreesHelper(t1, t2, subst)
+  {
+    if(t1 instanceof VarNode)
+    {
+      let im = subst.get(t1.varName);
+      if(im === undefined)
+      {
+        subst.set(t1.varName, t2);
+        return subst;
+      }
+      else
+      {
+        if(MathParser.parseTreesEq(im, t2))
+          return subst;
+        else
+          return false;
+      }
+    }
+    else
+    {
+      if(t1.rule !== t2.rule)
+        return false;
+      let cs1 = t1.childNodes;
+      let cs2 = t2.childNodes;
+      if(cs1.length !== cs2.length)
+        throw "unifyParseTreesHelper: Trees have same rule but different number of children."
+      for(let i = 0;i < cs1.length;i++)
+      {
+        if(!ProofAssistant.unifyParseTreesHelper(cs1[i], cs2[i], subst))
+          return false;
+      }
+      return subst;
+    }
+  }
+
+  //Returns the substitution (map from var names to parse trees) 
+  //s such that s(t1) = t2, if it exists, otherwise returns false.
+  //The support of s is all variables occuring in t1.
+  static unifyParseTrees(t1, t2)
+  {
+    let subst = new Map();
+    return ProofAssistant.unifyParseTreesHelper(t1, t2, subst)
   }
 }
