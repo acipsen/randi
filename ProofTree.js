@@ -11,4 +11,39 @@ class ProofTree
     this.thm = thm;
     this.subTrees = subTrees;
   }
+  
+  
+  toStringHelper(lineNo)
+  {
+    let s = "";
+    let cLineNos = [];
+    
+    if(this.subTrees)
+    {
+      for(let t of this.subTrees)
+      {
+        let cs;
+        cLineNos.push(lineNo);
+        ({s : cs, lineNo} = t.toStringHelper(lineNo));
+        s += cs + "\n";
+      }
+    }
+    
+    s += lineNo + ": " + this.stmt.assertion.join(" ") + " by ";
+    
+    if(this.thm)
+      s += this.thm.stmt.label;
+    else 
+      s += "?";
+    
+    if(cLineNos.length > 0)
+      s += "[" + cLineNos.join(",") + "]";
+    
+    return {s , lineNo: lineNo + 1};
+  }
+  
+  toString()
+  {
+    return this.toStringHelper(1).s;
+  }
 }

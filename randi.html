@@ -86,6 +86,9 @@
           gsp.innerHTML += goals[i].toString(false) + "\n";
       }
       
+      let thmPre = document.getElementById("dbThmPre");
+      if(document.getElementById("thmSearchInput").value === "")
+        thmPre.innerHTML = pa.proofTree.toString();
     }
 
     var paUpdateTimeout;
