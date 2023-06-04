@@ -79,15 +79,35 @@ class ProofAssistant
     
     for(let cmd of this.proofScript)
     {
+      let goalStack = this.goalStackStack.at(-1);
       switch(cmd.keyword)
       {
       case "$ap":
-        let goalStack = this.goalStackStack.at(-1);
-        if(goalStack.length == 0)
+        if(goalStack.length === 0)
           throw "runProofScript: No goal to apply tactic to!";
         let mainGoal = goalStack.pop();
         let newGoals = this.applyTac.apply(mainGoal, cmd.args);
         goalStack.push(...newGoals);
+        break;
+      case "${":
+        if(goalStack.length === 0)
+          throw "runProofScript: No goal to focus on!";
+        let g = goalStack.pop();
+        this.goalStackStack.push([g]);
+        break;
+      case "$}":
+        if(goalStack.length !== 0)
+          throw "runProofScript: Not all goals are closed.";
+        if(this.goalStackStack.length === 1)
+          throw "runProofScript: Too many $}/$?}";
+        this.goalStackStack.pop();
+        break;
+      case "$?}":
+        if(goalStack.length === 0)
+          throw "runProofScript: All goals closed, use $}!";
+        if(this.goalStackStack.length === 1)
+          throw "runProofScript: Too many $}/$?}!";
+        this.goalStackStack.pop();
         break;
       default:
         throw "runProofScript: Unexpected keyword: " + cmd.keyword;
