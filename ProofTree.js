@@ -33,7 +33,9 @@ class ProofTree
     
     if(this.thm)
       s += this.thm.stmt.label;
-    else 
+    else if(this.stmt.keyword === "$e")
+      s += this.stmt.label;
+    else
       s += "?";
     
     if(cLineNos.length > 0)

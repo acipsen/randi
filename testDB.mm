@@ -13,18 +13,25 @@
   wa $a wff ( ph /\ ps ) $.
   wn $a wff -. ph $.
   
+
+  id $p |- ( ph -> ph ) $= ? $.
+  
   ${
     mtand.1 $e |- ( ph -> -. ch ) $.
     mtand.2 $e |- ( ( ph /\ ps ) -> ch ) $.
-    $( A modus tollens deduction.  (Contributed by Jeff Hankins,
-       19-Aug-2009.) $)
     mtand $p |- ( ph -> -. ps ) $= ? $.
+  $}
+  
+
+  simpr $p |- ( ( ph /\ ps ) -> ps ) $= ? $.
+  
+  ${
+    simprd.1 $e |- ( ph -> ( ps /\ ch ) ) $.
+    simprd $p |- ( ph -> ch ) $= ? $.
   $}
   
   ${
     intnand.1 $e |- ( ph -> -. ps ) $.
-    $( Introduction of conjunct inside of a contradiction.  (Contributed by NM,
-       10-Jul-2005.) $)
     intnand $p |- ( ph -> -. ( ch /\ ps ) ) $= ? $.
   $}
   

@@ -129,7 +129,7 @@ class MathParser
         throw "parseTreesEq: Trees have same rule but different number of children."
       for(let i = 0;i < cs1.length;i++)
       {
-        if(!parseTreesEq(c1[i], c2[i]))
+        if(!MathParser.parseTreesEq(cs1[i], cs2[i]))
           return false;
       }
       return true;

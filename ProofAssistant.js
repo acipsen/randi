@@ -49,6 +49,7 @@ class ProofAssistant
     this.varTypes = MMDb.varTypesOfHyps(this.scope);
     
     this.applyTac = new ApplyTac(this);
+    this.byAssumptionTac = new ByAssumptionTac(this);
   }
   
   runProofScript(proofScriptString)
@@ -87,7 +88,20 @@ class ProofAssistant
           throw "runProofScript: No goal to apply tactic to!";
         let mainGoal = goalStack.pop();
         let newGoals = this.applyTac.apply(mainGoal, cmd.args);
-        goalStack.push(...newGoals);
+        for(let ng of newGoals)
+        {
+          try
+          {
+            this.byAssumptionTac.apply(ng);
+          }
+          catch(e)
+          {
+            if(e instanceof NotAssumptionError)
+              goalStack.push(ng);
+            else
+              throw e;
+          }
+        }
         break;
       case "${":
         if(goalStack.length === 0)
