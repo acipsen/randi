@@ -35,7 +35,7 @@ class ByAssumptionTac
         //simply point to the gHyp.
         throw new Error("TODO");
       }
-      return;
+      return [];
     }
     
     let {ants: gAnts, con: gCon} = DeductionForm.splitAntsCon(goal.pt.stmt.parseTree);
@@ -58,7 +58,13 @@ class ByAssumptionTac
     }
     else
     {
-      throw new NotAssumptionError("TODO");
+      let gs = this.pa.applyTac.apply(goal, [["adantr"]]);
+      if(gs.length !== 1)
+        throw new Error(`'$ap adantr' returned ${gs.length} goals`);
+      gs = this.apply(gs[0], []);
+      if(gs.length > 0)
+        throw new Error("Recursive apply call returned goals");
     }
+    return [];
   }
 }

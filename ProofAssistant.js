@@ -59,6 +59,8 @@ class ProofAssistant
     //array. We thus remove this element.
     if(toks.length > 0 && toks.at(-1) === "") 
       toks.pop();
+    if(toks.length > 0 && toks[0] === "")
+      toks.shift();
     this.proofScript = ProofAssistant.parseProofScript(toks);
     
     if(this.stmt.typecode !== "|-")

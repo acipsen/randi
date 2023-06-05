@@ -17,6 +17,7 @@
   <script src="DeductionForm.js"></script>
   <script src="ApplyTac.js"></script>
   <script src="ByAssumptionTac.js"></script>
+  <script src="TestDB.js"></script>
   <script>
     function loadDBFile()
     {
@@ -27,6 +28,13 @@
         {document.getElementById("dbThmPre").innerHTML = ""; processDB(e.target.result)});
       fr.readAsText(file);
     }
+    
+    function loadTestDB()
+    {
+      document.getElementById("proofTextarea").value = TestDB.proofScript;
+      processDB(TestDB.s);
+    }
+    
     var db;
     var pa;
     function processDB(s)
@@ -38,6 +46,7 @@
         paUpdate();
       }
     }
+    
     function thmSearchKeydown(e)
     {
       if(e.keyCode !== 13)
@@ -48,9 +57,12 @@
       let thm = db.thmMap.get(e.target.value);
       if(thm)
         thmPre.innerHTML = thm.toString(true);
+      else if(e.target.value === "")
+        thmPre.innerHTML = pa.proofTree.toString();
       else
         thmPre.innerHTML = "";
     }
+    
     function paUpdate()
     {
       console.log("paUpdate");
@@ -62,18 +74,16 @@
       let cursorPos = pta.selectionStart;
       let proofScriptString = pta.value.slice(0, cursorPos);
 
-      //try
-      //{
+      try
+      {
         pmp.innerHTML = "";
         pa.runProofScript(proofScriptString)
-        //for(let cmd of pa.proofScript)
-        //  pmp.innerHTML += cmd.toString() + "\n";
-      /*}
+      }
       catch(e)
       {
         pmp.innerHTML = e.toString();
         return;
-      } */
+      } 
       
       let goals = pa.goalStackStack.at(-1);
       if(goals.length > 0)
@@ -108,15 +118,18 @@
 <div style="display: grid; grid-template-columns: calc(50% - 0.5px) 1px calc(50% - 0.5px); grid-template-rows: 50px 1px calc((100vh - 52px) / 2) 1px calc((100vh - 52px) / 2); height: 100vh">
   <div style="height: 100%; width: 100%; grid-column: 1 / 4; align-items: center; display: flex; justify-content: space-between"> 
     <div>Target theorem: <input id="paThmLabelInput" type="text"></div>
-    <div>Database file: <input id="fileInput" type="file"> <button id="loadButton" onclick="loadDBFile()">Load</button></div>
+    <div>
+      Database file: <input id="fileInput" type="file"> <button id="loadButton" onclick="loadDBFile()">Load</button>
+      <button id="loadTestDBButton" onclick="loadTestDB()">Load test DB</button>
+    </div>
   </div> 
   <div style="height: 100%; width: 100%; grid-column: 1 / 4; grid-row: 2; background-color: black"></div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <textarea id="proofTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)">Proof script here</textarea>
+    <textarea id="proofTextarea" style="height: calc(100% - 10px); width: calc(100% - 10px)" onkeyup="proofKeyup(event)" onclick="proofKeyup(event)">Proof script</textarea>
   </div>
   <div style="height: 100%; width: 100%; grid-column: 2; grid-row: 3 / 6; background-color: black"></div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="goalStackPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">Goal stack here</pre>
+    <pre id="goalStackPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">Goal stack</pre>
   </div>
   <div style="height: 100%; width: 100%; grid-column: 1 / 4; grid-row: 4; background-color: black"></div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
@@ -126,11 +139,11 @@
       Theorem lookup: 
       <input type="text" id="thmSearchInput" onkeydown="thmSearchKeydown(event)" style="margin: 5px">
     </div>
-    <pre id="dbThmPre" style="height: calc(100% - 50px); width: calc(100% - 10px)">Theorems from db here</pre>
+    <pre id="dbThmPre" style="height: calc(100% - 50px); width: calc(100% - 10px)"></pre>
     <!-- </div> -->
   </div>
   <div style="float: left; height: 100%; width: 100%; position: relative">
-    <pre id="paMessagesPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">PA messages here</pre>
+    <pre id="paMessagesPre" style="height: calc(100% - 10px); width: calc(100% - 10px)">PA messages</pre>
   </div>
 </div>
 

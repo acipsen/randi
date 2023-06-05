@@ -31,15 +31,26 @@ class ApplyTac
       throw "ApplyTac: Unable to unify thm with goal";
       
     let argsIdx = 1;
+    let undeterminedVars = [];
     for(let h of thm.hyps)
     {
       if(h.keyword !== "$f" || subst.get(h.assertion[0]) !== undefined)
         continue;
       if(argsIdx >= args.length)
-        throw "ApplyTac: No substitution for var " + h.assertion[0];
-      let argTree = this.mathParser.parseMathExpr(args[argsIdx], h.typecode, this.varTypes);
-      subst.set(h.assertion[0], argTree);
+        undeterminedVars.push(h.assertion[0]);
+      else
+      {
+        let argTree = this.mathParser.parseMathExpr(args[argsIdx], h.typecode, this.varTypes);
+        subst.set(h.assertion[0], argTree);
+      }
       argsIdx++;
+    }
+    
+    if(undeterminedVars.length > 0)
+    {
+      let pluralS = undeterminedVars.length > 1 ? "s" : "";
+      throw `ApplyTac: Unable to determine substitution${pluralS} for var${pluralS} `
+        + undeterminedVars.join(", ");
     }
     
     if(argsIdx !== args.length)
