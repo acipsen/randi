@@ -12,35 +12,35 @@ class TestDB
   wth $f wff th $.
   
   wi $a wff ( ph -> ps ) $.
-  wa $a wff ( ph /\ ps ) $.
+  wa $a wff ( ph /\\ ps ) $.
   wn $a wff -. ph $.
-  wo $a wff ( ph \/ ps ) $.
+  wo $a wff ( ph \\/ ps ) $.
   
 
   id $p |- ( ph -> ph ) $= ? $.
   
   \${
     mtand.1 $e |- ( ph -> -. ch ) $.
-    mtand.2 $e |- ( ( ph /\ ps ) -> ch ) $.
+    mtand.2 $e |- ( ( ph /\\ ps ) -> ch ) $.
     mtand $p |- ( ph -> -. ps ) $= ? $.
   $}
   
 
-  simpr $p |- ( ( ph /\ ps ) -> ps ) $= ? $.
+  simpr $p |- ( ( ph /\\ ps ) -> ps ) $= ? $.
   
   \${
-    simprd.1 $e |- ( ph -> ( ps /\ ch ) ) $.
+    simprd.1 $e |- ( ph -> ( ps /\\ ch ) ) $.
     simprd $p |- ( ph -> ch ) $= ? $.
   $}
   
   \${
-    jaodan.1 $e |- ( ( ph /\ ps ) -> ch ) $.
-    jaodan.2 $e |- ( ( ph /\ th ) -> ch ) $.
-    jaodan.3 $e |- ( ph -> ( ps \/ th ) ) $.
+    jaodan.1 $e |- ( ( ph /\\ ps ) -> ch ) $.
+    jaodan.2 $e |- ( ( ph /\\ th ) -> ch ) $.
+    jaodan.3 $e |- ( ph -> ( ps \\/ th ) ) $.
     mpjaodan $p |- ( ph -> ch ) $= ? $.
   $}
   
-  exmidd $p |- ( ph -> ( ps \/ -. ps ) ) $= ? $.
+  exmidd $p |- ( ph -> ( ps \\/ -. ps ) ) $= ? $.
   
   \${
     mpd.1 $e |- ( ph -> ps ) $.
@@ -50,11 +50,11 @@ class TestDB
   
   \${
     adantr.1 $e |- ( ph -> ps ) $.
-    adantr $p |- ( ( ph /\ ch ) -> ps ) $= ? $.
+    adantr $p |- ( ( ph /\\ ch ) -> ps ) $= ? $.
   $}
   
   \${
-    ex.1 $e |- ( ( ph /\ ps ) -> ch ) $.
+    ex.1 $e |- ( ( ph /\\ ps ) -> ch ) $.
     ex $p |- ( ph -> ( ps -> ch ) ) $= ? $.
   $}
   
@@ -67,7 +67,7 @@ class TestDB
   \${
     $( $ap mtand $, ps  $ap simprd $, ch $)
     intnand.1 $e |- ( ph -> -. ps ) $.
-    intnand $p |- ( ph -> -. ( ch /\ ps ) ) $= ? $.
+    intnand $p |- ( ph -> -. ( ch /\\ ps ) ) $= ? $.
   $}
   
   $(
