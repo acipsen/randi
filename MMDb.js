@@ -206,6 +206,30 @@ class MMStatement
           + (this.assertion !== null ? this.assertion.join(" ") : "");
     return s;
   }
+  
+  //Modified from https://stackoverflow.com/a/7616484
+  static hashString(s)
+  {
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      let chr = s.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash >>> 0;  //Reinterpret hash as a 32bit *unsigned* number
+  }
+  
+  hashCode()
+  {
+    return MMStatement.hashString(this.assertion.join(" "));
+  }
+  
+  //Returns the hash code of this.assertion as a string of
+  //eight hex digits.
+  hashCodeString()
+  {
+    return this.hashCode().toString(16).padStart(8, "0");
+  }
 }
 
 //A scope is simply a list of $d, $e and $f statements.

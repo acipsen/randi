@@ -30,6 +30,7 @@ class Goal
         s = "Hypotheses:\n";
       for(let h of this.gHyps)
       {
+        s += h.stmt.hashCodeString() + ": ";
         s += DeductionForm.proofTreeToStringSequentStyle(h.stmt.parseTree) + "\n"; //h.stmt.assertion.join(" ") + "\n";
       }
       s += "Goal:\n";
