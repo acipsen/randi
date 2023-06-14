@@ -49,8 +49,12 @@ class ProofAssistant
     this.mathParser = db.mathParser;
     this.varTypes = MMDb.varTypesOfHyps(this.scope);
     
+    this.tactics = new Map();
     this.applyTac = new ApplyTac(this);
+    this.tactics.set("$ap", this.applyTac);
     this.byAssumptionTac = new ByAssumptionTac(this);
+    this.haveTac = new HaveTac(this);
+    this.tactics.set("$ha", this.haveTac);
   }
   
   runProofScript(proofScriptString)
@@ -87,10 +91,14 @@ class ProofAssistant
       switch(cmd.keyword)
       {
       case "$ap":
+      case "$ha":
         if(goalStack.length === 0)
           throw "runProofScript: No goal to apply tactic to!";
         let mainGoal = goalStack.pop();
-        let newGoals = this.applyTac.apply(mainGoal, cmd.args);
+        let tac = this.tactics.get(cmd.keyword);
+        if(tac === undefined)
+          throw new Error("No tactic registered for keyword " + cmd.keyword);
+        let newGoals = tac.apply(mainGoal, cmd.args);
         for(let ng of newGoals)
         {
           try
@@ -132,7 +140,7 @@ class ProofAssistant
     }
   }
   
-  static keywords = ["${", "$}", "$?}", "$ap"];
+  static keywords = ["${", "$}", "$?}", "$ap", "$ha"];
   static parseProofScript(toks)
   {
     let i = 0;

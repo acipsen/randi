@@ -17,6 +17,7 @@
   <script src="DeductionForm.js"></script>
   <script src="ApplyTac.js"></script>
   <script src="ByAssumptionTac.js"></script>
+  <script src="HaveTac.js"></script>
   <script src="TestDB.js"></script>
   <script>
     function loadDBFile()
@@ -74,16 +75,16 @@
       let cursorPos = pta.selectionStart;
       let proofScriptString = pta.value.slice(0, cursorPos);
 
-      try
-      {
+      //try
+      //{
         pmp.innerHTML = "";
         pa.runProofScript(proofScriptString)
-      }
+      /*}
       catch(e)
       {
         pmp.innerHTML = e.toString();
         return;
-      } 
+      } */
       
       let goals = pa.goalStackStack.at(-1);
       if(goals.length > 0)
