@@ -207,16 +207,12 @@ class MMStatement
     return s;
   }
   
-  //Modified from https://stackoverflow.com/a/7616484
+  //Modified from https://stackoverflow.com/a/52171480
   static hashString(s)
   {
-    let hash = 0;
-    for (let i = 0; i < s.length; i++) {
-      let chr = s.charCodeAt(i);
-      hash = ((hash << 5) - hash) + chr;
-      hash |= 0; // Convert to 32bit integer
-    }
-    return hash >>> 0;  //Reinterpret hash as a 32bit *unsigned* number
+    for(var i=0, h=9;i<s.length;)
+      h = Math.imul(h^s.charCodeAt(i++), 9**9);
+    return h^h>>>9;
   }
   
   hashCode()
