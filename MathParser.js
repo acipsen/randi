@@ -25,6 +25,12 @@ class ParseTree
   {
     return this.toTokenList().join(" ");
   }
+  
+  toStringSequentStyle()
+  {
+    let {ants, con} = MathParser.splitAntsCon(this);
+    return ants.join(", ") + " |- " + con;
+  }
 }
 
 class VarNode extends ParseTree
@@ -240,5 +246,57 @@ class MathParser
   parseThm(thm)
   {
     return this.parseMathExpr(thm.stmt.assertion, "wff", MMDb.varTypesOfHyps(thm.hyps));
+  }
+  
+  
+  //Some utility function for manipulating formulas of the form
+  //( ... ( ( ph1 /\ ph2 ) /\ ph3 ) ... /\ phN ) -> ps.
+  
+  static IMPLABEL = "wi";
+  static ANDLABEL = "wa";
+  
+  static trySplitImp(pt)
+  {
+    if(pt instanceof VarNode)
+      return false;
+    if(!(pt instanceof RuleNode))
+      throw "trySplitImp: Argument is not a parse tree!";
+    if(pt.rule.label === MathParser.IMPLABEL)
+      return {ant: pt.childNodes[0], con: pt.childNodes[1]};
+    else
+      return false;
+  }
+  
+  static trySplitAnd(pt)
+  {
+    if(pt instanceof VarNode)
+      return false;
+    if(!(pt instanceof RuleNode))
+      throw "trySplitAnd: Argument is not a parse tree!";
+    if(pt.rule.label === MathParser.ANDLABEL)
+      return {left: pt.childNodes[0], right: pt.childNodes[1]};
+    else
+      return false;
+  }
+  
+  //Turns a proof tree of the form ( ... ( ( ph1 /\ ph2 ) /\ ph3 ) ... /\ phN ) 
+  //into [ph1, ..., phN]
+  static splitAnds(pt)
+  {
+    let spt = MathParser.trySplitAnd(pt);
+    if(spt)
+      return MathParser.splitAnds(spt.left).concat([spt.right]);
+    else
+      return [pt];
+  }
+  
+  
+  static splitAntsCon(pt)
+  {
+    let spl = MathParser.trySplitImp(pt);
+    if(spl)
+      return {ants: MathParser.splitAnds(spl.ant), con: spl.con};
+    else
+      return {ants: [], con: pt};
   }
 }

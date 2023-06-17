@@ -38,7 +38,7 @@ class ByAssumptionTac
       return [];
     }
     
-    let {ants: gAnts, con: gCon} = DeductionForm.splitAntsCon(goal.pt.stmt.parseTree);
+    let {ants: gAnts, con: gCon} = MathParser.splitAntsCon(goal.pt.stmt.parseTree);
     idx = gAnts.findLastIndex((a) => MathParser.parseTreesEq(gCon, a));
     if(idx === -1)
       throw new NotAssumptionError("Consequent not an assumption: " + gCon);

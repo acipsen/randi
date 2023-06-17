@@ -31,11 +31,11 @@ class Goal
       for(let h of this.gHyps)
       {
         s += h.stmt.hashCodeString() + ": ";
-        s += DeductionForm.proofTreeToStringSequentStyle(h.stmt.parseTree) + "\n"; //h.stmt.assertion.join(" ") + "\n";
+        s += h.stmt.parseTree.toStringSequentStyle() + "\n";
       }
       s += "Goal:\n";
     }
-    return s + DeductionForm.proofTreeToStringSequentStyle(this.pt.stmt.parseTree);
+    return s + this.pt.stmt.parseTree.toStringSequentStyle();
   }
 }
 
